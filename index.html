@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stride – Endurance Planner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF0EA;--surf:#F8FAF6;--ink:#13242B;--mute:#5B6B70;--line:#CBD3CC;--acc:#0E7C7B;--hard:#C2410C;--ok:#2F8F4E;--onacc:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E181C;--surf:#16242A;--ink:#E8EEEA;--mute:#93A4A8;--line:#2A3C42;--acc:#3CC1BE;--hard:#FF8A55;--ok:#5FCB84;--onacc:#0E181C}}
+:root[data-theme="dark"]{--bg:#0E181C;--surf:#16242A;--ink:#E8EEEA;--mute:#93A4A8;--line:#2A3C42;--acc:#3CC1BE;--hard:#FF8A55;--ok:#5FCB84;--onacc:#0E181C}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,h3{font-stretch:75%;font-weight:800;letter-spacing:.01em;margin:0;line-height:1.1}
+h1{font-size:2.4rem}h2{font-size:1.5rem;margin-bottom:10px}h3{font-size:1.15rem}
+p{margin:0 0 10px}.mute{color:var(--mute);font-size:.9rem}
+label{display:block;font-size:.85rem;color:var(--mute);margin:12px 0 4px}
+input,select,button{font:inherit;color:inherit}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surf)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{cursor:pointer;border:1px solid var(--line);background:var(--surf);border-radius:6px;padding:9px 14px}
+button.pri{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.tabs{display:flex;gap:4px;margin:18px 0 20px;border-bottom:1px solid var(--line)}
+.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:10px 14px;font-weight:600;color:var(--mute)}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--acc)}
+.wk{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:8px 0 18px}
+.bar i{display:block;height:100%;background:var(--ok)}
+.s{border-left:5px solid var(--line);background:var(--surf);padding:12px 14px;margin-bottom:10px;border-radius:0 8px 8px 0}
+.s.quality{border-left-color:var(--hard)}.s.long{border-left-color:var(--acc)}.s.done{opacity:.75}
+.s .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.day{font-weight:700;color:var(--mute);font-size:.85rem}
+.min{font-stretch:75%;font-weight:800;font-size:1.5rem}
+.s p{margin:4px 0 8px;font-size:.92rem}
+.log{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.log div{flex:1;min-width:90px}.log label{margin:0 0 3px}
+.ok{color:var(--ok);font-weight:700;font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.stats div{background:var(--surf);padding:12px;border-radius:8px}
+.stats b{display:block;font-stretch:75%;font-size:1.9rem;font-weight:800;line-height:1.1}
+.chart{display:flex;align-items:flex-end;gap:5px;height:130px;margin:10px 0 4px}
+.chart div{flex:1;height:100%;display:flex;align-items:flex-end;position:relative;background:linear-gradient(var(--line),var(--line)) center/1px 100% no-repeat}
+.chart .p{position:absolute;left:0;right:0;bottom:0;border:2px solid var(--line);background:transparent;border-radius:3px 3px 0 0}
+.chart .d{position:relative;width:100%;background:var(--acc);border-radius:3px 3px 0 0}
+.lbls{display:flex;gap:5px;font-size:.7rem;color:var(--mute)}.lbls span{flex:1;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+td,th{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left}
+.note{background:var(--surf);border-left:5px solid var(--hard);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.88rem;margin:16px 0}
+.wl{display:flex;gap:8px}.wl input{flex:1}
+.tabs{overflow-x:auto}.tabs button{padding:10px 10px;white-space:nowrap}
+.seg{display:flex;gap:6px;margin-bottom:14px}.seg button[aria-pressed=true]{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700}
+.s.str{border-left-color:var(--ok)}.ex{list-style:none;padding:0;margin:6px 0 10px}.ex li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:.92rem}.ex b{white-space:nowrap}
+.m{margin:3px 0;font-size:.92rem}
+main{padding-bottom:110px}
+#tb{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--bg);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+#tb[hidden]{display:none}#tb button{color:var(--ink)}#tb button.pri{color:var(--onacc)}
+.ex li.k{display:block}.er{display:flex;justify-content:space-between;gap:10px;width:100%;background:none;border:0;padding:0;text-align:left;font-size:inherit}
+.det{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 0 4px}.det svg{flex:none;background:var(--bg);border-radius:8px}.det>div{flex:1;min-width:180px}
+@media (prefers-reduced-motion:no-preference){.bar i,.chart .d{transition:height .4s,width .4s}}
+</style>
+
+<meta name="theme-color" content="#0E7C7B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Stride">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+</head>
+<body>
+<main id="app"></main>
+<div id="tb" hidden></div>
+<script>
+const $=s=>document.querySelector(s);
+let S={},tab='plan',viewW=null,openId=null;
+try{S=JSON.parse(localStorage.getItem('stride1'))||{}}catch(e){S={}}
+const save=()=>{try{localStorage.setItem('stride1',JSON.stringify(S))}catch(e){}};
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const BASE={b:90,i:180,a:300};
+const GOAL={base:['Aerobic base',1],'5k':['5K',1],'10k':['10K',1.15],half:['Half marathon',1.3]};
+const LVL={b:'Beginner',i:'Intermediate',a:'Advanced'};
+const DAYS={3:['Tue','Thu','Sun'],4:['Mon','Wed','Fri','Sun'],5:['Mon','Tue','Thu','Fri','Sun'],6:['Mon','Tue','Wed','Fri','Sat','Sun']};
+const PAT={3:['easy','quality','long'],4:['easy','quality','easy','long'],5:['easy','quality','easy','cross','long'],6:['easy','quality','easy','cross','easy','long']};
+const WT={easy:1.5,quality:2,long:3,cross:1.5};
+const RW=[[1,2],[1,2],[2,1],[2,1],[4,1],[4,1],[8,1],[8,1]];
+const mhr=p=>Math.round(208-.7*p.age);
+const zone=(p,a,b)=>{const m=mhr(p),r=p.rhr;const f=x=>r?Math.round(r+(m-r)*x):Math.round(m*x);return f(a)+'–'+f(b)+' bpm'};
+const vol=(p,w)=>{const k=(.6+.1*p.days)*BASE[p.lvl]*GOAL[p.goal][1];
+  const v=w=>k*(1+.08*(w-Math.floor(w/4)-1));
+  return w%4==0?.7*v(w-1):v(w)};
+function gen(p){
+  const pat=PAT[p.days],tw=pat.reduce((a,t)=>a+WT[t],0),out=[];
+  for(let w=1;w<=12;w++){
+    const tot=vol(p,w),sess=pat.map((t,i)=>{
+      let m=Math.max(p.lvl=='b'?15:25,Math.round(tot*WT[t]/tw/5)*5),title,d;
+      const run=p.lvl=='b'&&w<=8,r=RW[Math.min(w-1,7)];
+      if(t=='easy'||t=='long'){
+        title=t=='long'?'Long steady session':'Easy session';
+        d=run?`Run ${r[0]} min, walk ${r[1]} min, repeat for ${m} min. Keep the run part conversational.`
+          :`Steady and relaxed, able to talk in full sentences. Target ${zone(p,.6,.7)}.`+(t=='long'&&m>75?' Take water and fuel with you.':'');
+      }else if(t=='cross'){title='Cross-training';d='Cycling, swimming or rowing at easy effort. Rest your joints, keep your engine working.'}
+      else{
+        title=p.lvl=='b'?'Easy with pickups':p.lvl=='i'?(w%2?'Tempo':'Intervals'):(w%2?'Threshold':'VO₂ intervals');
+        const n=Math.max(4,Math.round(m*.4/5));
+        d=p.lvl=='b'?(run?'Easy effort with 5 relaxed pickups of 20 seconds, then walk or jog to recover.':'Easy effort with 6 pickups of 30 seconds. Smooth, not sprinting.')
+         :p.lvl=='i'?(w%2?`10 min warm-up, ${Math.round(m*.4)} min comfortably hard (${zone(p,.8,.9)}), 10 min cool-down.`:`10 min warm-up, ${n} × 3 min hard (${zone(p,.85,.92)}) with 2 min easy between, cool down.`)
+         :(w%2?`Warm up, 3 × ${Math.max(8,Math.round(m*.15))} min at ${zone(p,.85,.9)} with 2 min easy between, cool down.`:`Warm up, ${Math.max(5,Math.round(m*.45/7))} × 4 min at ${zone(p,.9,.97)} with 3 min easy between, cool down.`);
+      }
+      return{id:w+'-'+i,t,m,title,d,day:DAYS[p.days][i]};
+    });
+    out.push({w,dl:w%4==0,tot:sess.reduce((a,s)=>a+s.m,0),sess});
+  }
+  return out;
+}
+const curW=()=>Math.min(12,Math.floor((Date.now()-S.start)/6048e5)+1);
+const lb=kg=>S.p.u=='i'?Math.round(kg*2.2046*10)/10+' lb':Math.round(kg*10)/10+' kg';
+const bmi=p=>p.kg/Math.pow(p.cm/100,2);
+
+function setup(){
+  $('#app').innerHTML=`<h1>Stride</h1><p class="mute">Tell us about you and we’ll build a 12-week endurance plan that matches your level.</p>
+  <form id="f" onsubmit="return false">
+  <label>Name</label><input id="n" placeholder="Your name">
+  <div class="row"><div><label>Units</label><select id="u"><option value="m">Metric (kg, cm)</option><option value="i">Imperial (lb, in)</option></select></div>
+  <div><label>Age</label><input id="a" type="number" min="14" max="90" value="30"></div></div>
+  <div class="row"><div><label id="wl">Weight</label><input id="w" type="number" step="0.1" min="30"></div>
+  <div><label id="hl">Height</label><input id="h" type="number" step="0.1" min="100"></div></div>
+  <label>Resting heart rate (optional)</label><input id="r" type="number" min="35" max="110" placeholder="bpm, measured on waking">
+  <label>Current endurance level</label><select id="l"><option value="b">Beginner – little or no regular cardio</option><option value="i">Intermediate – training regularly for months</option><option value="a">Advanced – years of consistent training</option></select>
+  <div class="row"><div><label>Goal</label><select id="g"><option value="base">Build an aerobic base</option><option value="5k">5K</option><option value="10k">10K</option><option value="half">Half marathon</option></select></div>
+  <div><label>Days per week</label><select id="d"><option>3</option><option selected>4</option><option>5</option><option>6</option></select></div></div>
+  <label>Where will you do strength work?</label><select id="loc"><option value="h">Home (little or no equipment)</option><option value="g">Gym (machines and weights)</option></select>
+  <p id="err" class="mute" style="color:var(--hard);margin-top:12px"></p>
+  <button class="pri" id="go" style="width:100%">Build my plan</button></form>`;
+  const lab=()=>{const i=$('#u').value=='i';$('#wl').textContent=i?'Weight (lb)':'Weight (kg)';$('#hl').textContent=i?'Height (in)':'Height (cm)';$('#w').placeholder=i?'165':'75';$('#h').placeholder=i?'69':'175'};
+  $('#u').onchange=lab;lab();
+  $('#go').onclick=()=>{
+    const i=$('#u').value=='i',w=+$('#w').value,h=+$('#h').value,a=+$('#a').value;
+    const kg=i?w/2.2046:w,cm=i?h*2.54:h;
+    if(!(kg>=30&&kg<=250&&cm>=120&&cm<=230&&a>=14&&a<=90)){$('#err').textContent='Check your age, weight and height – one of them looks out of range.';return}
+    S={p:{name:$('#n').value.trim()||'Athlete',u:$('#u').value,age:a,kg,cm,rhr:+$('#r').value||0,lvl:$('#l').value,goal:$('#g').value,days:+$('#d').value,loc:$('#loc').value},
+      start:Date.now(),done:{},weights:[{d:new Date().toISOString().slice(0,10),kg}]};
+    save();viewW=null;tab='plan';render();
+  };
+}
+
+function render(){
+  if(!S.p)return setup();
+  const plan=gen(S.p),cw=curW();if(!viewW)viewW=cw;
+  const p=S.p;
+  let h=`<h1>Hi, ${esc(p.name)}</h1><p class="mute">${LVL[p.lvl]} · ${GOAL[p.goal][0]} · ${p.days} days a week</p>
+  <div class="tabs" role="tablist">${['plan','strength','diet','progress','profile'].map(t=>`<button role="tab" aria-selected="${tab==t}" data-t="${t}">${{plan:'Plan',strength:'Strength',diet:'Diet',progress:'Progress',profile:'Profile'}[t]}</button>`).join('')}</div>`;
+  h+=bannerV(plan,cw)+(tab=='plan'?planV(plan,cw):tab=='strength'?strV2():tab=='diet'?dietV():tab=='progress'?progV(plan):profV());
+  $('#app').innerHTML=h;
+  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+  bind(plan);
+}
+function planV(plan,cw){
+  const wk=plan[viewW-1],done=wk.sess.reduce((a,s)=>a+(S.done[s.id]?S.done[s.id].min:0),0),pct=Math.min(100,Math.round(done/wk.tot*100));
+  let h=`<div class="wk"><button id="pv" ${viewW<2?'disabled':''} aria-label="Previous week">‹</button><h2 style="margin:0">Week ${viewW} of 12${viewW==cw?' · this week':''}</h2><button id="nx" ${viewW>11?'disabled':''} aria-label="Next week">›</button></div>
+  <p class="mute">${wk.dl?'Recovery week: lighter load so your body can adapt. ':viewW>8?'Peak block: hold your form and stay patient. ':viewW>4?'Build block: volume climbs gradually. ':'Foundation: keep every session easy. '}${done} of ${wk.tot} min done. About ${wk.sess.reduce((a,s)=>a+kcalOf(s),0)} kcal planned this week.</p><div class="bar"><i style="width:${pct}%"></i></div>`;
+  wk.sess.forEach(s=>{const d=S.done[s.id],o=openId==s.id;
+    h+=`<div class="s ${s.t}${d?' done':''}"><div class="top"><div><span class="day">${s.day}</span><h3>${s.title}</h3></div><div class="min">${s.m}<span class="mute"> min</span><small class="mute" style="display:block;font-size:.75rem;font-weight:400;text-align:right">~${kcalOf(s)} kcal</small></div></div><p>${s.d}</p>`;
+    if(d)h+=`<span class="ok">✓ Logged ${d.min} min, effort ${d.rpe}/10</span> <button data-undo="${s.id}">Undo</button>`;
+    else if(o)h+=`<div class="log"><div><label>Minutes</label><input id="lm" type="number" min="1" value="${s.m}"></div><div><label>Effort (1–10)</label><input id="lr" type="number" min="1" max="10" value="5"></div><button class="pri" data-save="${s.id}">Log session</button><button data-open="">Cancel</button></div>`;
+    else h+=`<button data-open="${s.id}">Log session</button> <button data-tk='run' data-ti='${s.id}' data-tl='${esc(s.day+' · '+s.title)}' data-tt='${s.m*60}'>⏱ Start timer</button>`;
+    h+='</div>';});
+  return h;
+}
+function progV(plan){
+  const all=plan.flatMap(w=>w.sess),dn=all.filter(s=>S.done[s.id]);
+  const mins=dn.reduce((a,s)=>a+S.done[s.id].min,0),cw=curW();
+  const due=plan.filter(w=>w.w<=cw).flatMap(w=>w.sess),adh=due.length?Math.round(due.filter(s=>S.done[s.id]).length/due.length*100):0;
+  const mx=Math.max(...plan.map(w=>w.tot));
+  const wd=plan.map(w=>w.sess.reduce((a,s)=>a+(S.done[s.id]?S.done[s.id].min:0),0));
+  const ws=S.weights,first=ws[0].kg,last=ws[ws.length-1].kg,ch=last-first;
+  return `<div class="stats"><div><b>${dn.length}</b><span class="mute">sessions</span></div><div><b>${mins}</b><span class="mute">minutes</span></div><div><b>${adh}%</b><span class="mute">on plan</span></div></div><p class="mute" style="margin:-8px 0 18px">About ${dn.reduce((a,s)=>a+Math.round(kcalOf(s)*S.done[s.id].min/s.m),0)+Object.keys(S.sd||{}).length*Math.round(5*curKg()*35/60)} kcal burned across your logged sessions.</p>
+  ${goalV()}<h2 style="margin-top:22px">Weekly minutes</h2><p class="mute">Outline is planned, solid is what you logged.</p>
+  <div class="chart">${plan.map((w,i)=>`<div><span class="p" style="height:${w.tot/mx*100}%"></span><span class="d" style="height:${Math.min(wd[i],w.tot*1.3)/mx*100}%"></span></div>`).join('')}</div>
+  <div class="lbls">${plan.map(w=>`<span>${w.w}</span>`).join('')}</div>
+  <h2 style="margin-top:26px">Body weight</h2>
+  <p class="mute">Now ${lb(last)}${ws.length>1?` · ${ch>0?'+':''}${lb(Math.abs(ch)).replace(/^/,ch<0?'−':'')} since start`:''}</p>
+  <div class="wl"><input id="nw" type="number" step="0.1" placeholder="${S.p.u=='i'?'Weight in lb':'Weight in kg'}"><button class="pri" id="aw">Add entry</button></div>
+  <table>${ws.slice().reverse().slice(0,6).map(x=>`<tr><td>${x.d}</td><td>${lb(x.kg)}</td></tr>`).join('')}</table>`;
+}
+function profV(){
+  const p=S.p,b=bmi(p),m=mhr(p);
+  const bc=b<18.5?'below the typical range':b<25?'in the typical range':b<30?'above the typical range':'well above the typical range';
+  const Z=[['Zone 1 · Recovery',.5,.6],['Zone 2 · Easy aerobic',.6,.7],['Zone 3 · Steady',.7,.8],['Zone 4 · Threshold',.8,.9],['Zone 5 · Hard',.9,1]];
+  return `<div class="stats"><div><b>${b.toFixed(1)}</b><span class="mute">BMI</span></div><div><b>${m}</b><span class="mute">est. max HR</span></div><div><b>${lb(p.kg)}</b><span class="mute">${p.u=='i'?Math.round(p.cm/2.54):Math.round(p.cm)} ${p.u=='i'?'in':'cm'}</span></div></div>
+  <p>Your BMI is ${bc}. It’s a rough guide only, so use it alongside how you feel and how your training goes.</p>
+  <h2 style="margin-top:20px">Heart-rate zones</h2>
+  <table>${Z.map(z=>`<tr><td>${z[0]}</td><td>${zone(p,z[1],z[2])}</td></tr>`).join('')}</table>
+  <p class="mute" style="margin-top:8px">Max HR uses an age-based estimate${p.rhr?'; zones use your resting HR of '+p.rhr+' bpm':''}. Most sessions should sit in Zone 2.</p>
+  <h2 style="margin-top:20px">Calories per 30 minutes</h2><table>${CT.map(r=>`<tr><td>${r[0]}</td><td>${Math.round(r[1]*curKg()*.5)} kcal</td></tr>`).join('')}</table><p class="mute" style="margin-top:8px">Estimates from standard activity values (METs) and your current weight. Real burn varies with pace, terrain and fitness.</p><div class="note">Plans are general guidance, not medical advice. See a doctor before starting if you have a health condition, are over 40 and inactive, or feel chest pain or dizziness when exercising.</div>
+  <button id="rs">Start over with new details</button>`;
+}
+const EX={
+b:{push:['Incline push-ups (hands on a table)','Bench dips','Plank shoulder taps'],pull:['Backpack bent-over rows','Superman holds','Towel or band pull-aparts'],legs:['Bodyweight squats','Glute bridges','Calf raises','Step-ups on a stair'],core:['Dead bug','Plank','Side plank']},
+i:{push:['Push-ups','Dumbbell shoulder press','Dumbbell floor press'],pull:['One-arm dumbbell row','Lat pulldown or assisted pull-ups','Reverse flyes or face pulls'],legs:['Goblet squat','Romanian deadlift (dumbbells)','Walking lunges','Single-leg calf raise'],core:['Plank','Side plank','Bird dog or Pallof press']},
+a:{push:['Barbell bench press','Standing overhead press','Weighted dips or close-grip push-ups'],pull:['Pull-ups','Barbell or cable row','Single-arm dumbbell row'],legs:['Back squat or trap-bar deadlift','Bulgarian split squat','Single-leg Romanian deadlift','Loaded calf raise'],core:['Hanging knee raise','Pallof press','Copenhagen plank']}};
+const rep=(w,l)=>w%4==0?'2 × 8 light':w<=4?(l=='a'?'3 × 8':'2 × 12'):w<=8?(l=='a'?'4 × 6':'3 × 10'):(l=='a'?'4 × 5':'3 × 8');
+function strV(){
+  const p=S.p,w=viewW,three=p.lvl=='a'&&p.days>=5,sd=S.sd||{};
+  const SS=three?[['Push',['push']],['Pull',['pull']],['Legs and core',['legs','core']]]:[['Strength A · push and legs',['push','legs']],['Strength B · pull and core',['pull','core']]];
+  const G={push:'Push',pull:'Pull',legs:'Legs',core:'Core'};
+  let h=`<div class="wk"><button id="pv" ${w<2?'disabled':''} aria-label="Previous week">‹</button><h2 style="margin:0">Week ${w} of 12</h2><button id="nx" ${w>11?'disabled':''} aria-label="Next week">›</button></div>
+  <p class="mute">${SS.length} strength sessions this week. Strength makes you more economical and protects you from injury. Do it after an easy session or on its own, never before a quality or long session, and stop each set with about 2 reps left.${p.lvl=='b'?' Beginner moves need no equipment.':''}</p>`;
+  SS.forEach((s,i)=>{const id=w+'-'+i,d=sd[id],nE=s[1].reduce((a,g)=>a+EX[p.lvl][g].length,0),per=Math.round(5*curKg()*(w%4==0?25:35)/60/nE);
+    h+=`<div class="s str${d?' done':''}"><div class="top"><h3>${s[0]}</h3><span class="mute">${w%4==0?'about 25 min':'30–40 min'} · ~${Math.round(5*curKg()*(w%4==0?25:35)/60)} kcal</span></div><ul class="ex">`;
+    s[1].forEach(g=>EX[p.lvl][g].forEach(e=>{h+=`<li><span><span class="mute">${G[g]} · </span>${e}</span><b>${g=='core'?'3 × 30–45 s':rep(w,p.lvl)}<small class="mute" style="display:block;font-weight:400;text-align:right">~${per} kcal</small></b></li>`}));
+    h+=`</ul><button ${d?'':'class="pri"'} data-sd="${id}">${d?'✓ Done, tap to undo':'Mark done'}</button></div>`;});
+  return h;
+}
+const DN=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MV=[
+['3 idli, sambar, coconut chutney','Rice, sambar, beans poriyal, curd','2 ragi rotis, moong dal curry'],
+['2 pesarattu (green gram dosa), ginger chutney','Rice, rasam, cabbage poriyal, buttermilk, boiled chana','Vegetable upma, sprouts salad'],
+['2 ragi dosa, peanut chutney','Rice, mixed-dal kootu, beetroot poriyal, curd','2 chapati, soya chunk curry'],
+['Ven pongal, sambar','Rice, drumstick sambar, keerai poriyal, curd','3 idli, sundal (chickpeas)'],
+['2 adai (mixed dal dosa), chutney','Rice, kondakadalai curry, cucumber, buttermilk','Millet khichdi, curd raita'],
+['2 dosa, sambar, banana','Rice, mor kuzhambu, vendakkai poriyal, dal','2 chapati, paneer or soya bhurji'],
+['4 idli, sambar, banana','Rice, sambar, two poriyals, curd, sundal','Curd rice, roasted peanuts, fruit']];
+const MN=[
+['3 idli, sambar, 2 boiled eggs','Rice, sardine (mathi) curry, cabbage poriyal','2 chapati, egg curry'],
+['2 egg dosa, chutney','Rice, chicken curry (2 pieces), beans poriyal, curd','Vegetable upma, omelette'],
+['2 ragi dosa, peanut chutney, boiled egg','Rice, sambar, fried mackerel (ayila)','2 chapati, dry pepper chicken'],
+['Ven pongal, sambar, egg','Rice, drumstick sambar, keerai poriyal, curd','3 idli, egg podimas'],
+['2 adai, chutney','Rice, fish kuzhambu, spinach poriyal','Millet khichdi, 2 boiled eggs'],
+['2 dosa, sambar, banana','Rice, chicken curry, rasam, curd','2 chapati, pepper chicken soup'],
+['4 idli, sambar, egg','Rice, fish or chicken curry, poriyal, curd','Curd rice, boiled egg, fruit']];
+function dietV(){
+  const p=S.p,k=p.kg,pf=S.diet||'v';
+  const pr=Math.round(k*{b:1.2,i:1.5,a:1.7}[p.lvl]),cb=Math.round(k*{b:4,i:5.5,a:7}[p.lvl]),ft=Math.round(k*.9),kc=Math.round((pr*4+cb*4+ft*9)/50)*50;
+  const M=pf=='v'?MV:MN;
+  return `<div class="seg"><button data-dt="v" aria-pressed="${pf=='v'}">Vegetarian</button><button data-dt="n" aria-pressed="${pf=='n'}">Non-vegetarian</button></div>
+  <h2>Daily targets</h2>
+  <div class="stats"><div><b>${kc}</b><span class="mute">kcal</span></div><div><b>${pr} g</b><span class="mute">protein</span></div><div><b>${cb} g</b><span class="mute">carbs</span></div></div>
+  <p class="mute">Estimated for your weight and ${LVL[p.lvl].toLowerCase()} training load, with about ${ft} g fat. To lose weight eat about 300 kcal less; to gain, about 300 more. Eat toward the top on long-run days and the bottom on rest days.</p>
+  <h2 style="margin-top:22px">Weekly meals</h2>
+  ${M.map((d,i)=>`<div class="s"><h3>${DN[i]}</h3><p class="m"><b>Breakfast:</b> ${d[0]}</p><p class="m"><b>Lunch:</b> ${d[1]}</p><p class="m"><b>Dinner:</b> ${d[2]}</p></div>`).join('')}
+  <h2 style="margin-top:22px">Around training</h2>
+  <p class="m"><b>Before (30–60 min):</b> banana with 2 dates, or a slice of toast with jaggery.</p>
+  <p class="m"><b>During (over 75 min):</b> dates or banana every 30–40 min, and lemon-salt-sugar water or tender coconut water.</p>
+  <p class="m"><b>After (within an hour):</b> ${pf=='v'?'curd with banana, sundal, or ragi malt made with milk':'2 boiled eggs with banana, or buttermilk with roasted chana'}.</p>
+  <h2 style="margin-top:22px">Protein per portion (about)</h2>
+  <table>${(pf=='v'?[['Egg-free: 1 cup cooked dal','9 g'],['30 g dry soya chunks','15 g'],['100 g paneer','18 g'],['200 g curd','7 g'],['1 cup sundal (chickpeas)','10 g'],['30 g roasted peanuts','8 g']]:[['1 egg','6 g'],['100 g chicken','25 g'],['100 g sardine (mathi)','21 g'],['1 cup cooked dal','9 g'],['200 g curd','7 g'],['1 cup sundal (chickpeas)','10 g']]).map(r=>`<tr><td>${r[0].replace('Egg-free: ','')}</td><td>${r[1]}</td></tr>`).join('')}</table>
+  <h2 style="margin-top:22px">Keeping it affordable</h2>
+  <p class="m">Dal, sprouts, peanuts, curd and ${pf=='v'?'soya chunks':'eggs and small fish like sardines'} are usually the cheapest protein. Swap rice for ragi or kambu a few times a week, buy dals and millets in bulk, and pick whatever vegetables and keerai are in season.</p>
+  <p class="m">Drink water through the day. In hot weather add a pinch of salt or have buttermilk or rasam, since you lose salt as you sweat.</p>
+  <div class="note">This is general guidance, not medical advice. If you have diabetes, kidney problems or another condition, check with a doctor or dietitian first.</div>`;
+}
+const MET={easy:7.5,long:7.5,quality:10,cross:6};
+const CT=[['Walking, brisk',3.8],['Run/walk intervals',5.5],['Easy running',7.5],['Tempo or interval running',10],['Cycling, easy',6],['Swimming, steady',6],['Rowing, moderate',7],['Strength: push, pull, legs',5],['Core work and planks',3.5]];
+const curKg=()=>S.weights[S.weights.length-1].kg;
+function kcalOf(s){const w=+s.id.split('-')[0];let m=MET[s.t];if((s.t=='easy'||s.t=='long')&&S.p.lvl=='b'&&w<=8)m=5.5;if(s.t=='quality'&&S.p.lvl=='b')m=7;return Math.round(m*curKg()*s.m/60)}
+function goal(){
+  const p=S.p,m2=Math.pow(p.cm/100,2),cur=curKg(),lo=Math.ceil(18.5*m2*10)/10,def=Math.round(Math.min(cur,22*m2)*10)/10;
+  const tg=S.tg||def,pace=S.pace||.5,loss=Math.max(0,cur-tg);
+  const wd=Math.ceil(loss/pace*7),pd=Math.max(0,84-Math.floor((Date.now()-S.start)/864e5));
+  return{cur,tg,pace,loss,wd,pd,left:Math.max(wd,pd),lo,ded:Math.round(pace*7700/7/10)*10};
+}
+function goalV(){
+  const g=goal(),i=S.p.u=='i',f=x=>i?Math.round(x*2.2046*10)/10:Math.round(x*10)/10,u=i?'lb':'kg';
+  const dt=new Date(Date.now()+g.left*864e5).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+  return `<h2>Weight goal</h2>
+  <div class='stats'><div><b>${f(g.loss)}</b><span class='mute'>${u} to lose</span></div><div><b>${g.wd}</b><span class='mute'>days at this pace</span></div><div><b>${g.left}</b><span class='mute'>days to perfect shape</span></div></div>
+  <div class='row'><div><label>Target weight (${u})</label><input id='tg' type='number' step='0.1' value='${f(g.tg)}'></div><div><label>Pace</label><select id='pc'>${[[.25,'Gentle'],[.5,'Steady'],[.75,'Faster']].map(o=>`<option value='${o[0]}' ${o[0]==g.pace?'selected':''}>${o[1]} · ${i?(o[0]*2.2046).toFixed(2).replace(/0$/,''):o[0]} ${u} a week</option>`).join('')}</select></div></div>
+  <button class='pri' id='sg' style='margin-top:10px'>Update goal</button> <span id='gerr' class='mute' style='color:var(--hard)'></span>
+  <p class='mute' style='margin-top:10px'>${g.loss>0?`Eating about ${g.ded} kcal a day below what you burn gets you there in ${g.wd} days. Perfect shape means reaching your target weight and finishing the 12-week plan, so it lands on whichever comes later: ${dt}.`:`You’re already at or under your target weight, so the focus is fitness. Perfect shape arrives when you finish week 12 on ${dt}.`}</p>
+  <p class='mute'>The default target is the weight at a BMI of 22 for your height. Don’t go below ${f(g.lo)} ${u} (BMI 18.5), and keep the deficit modest, since cutting too hard hurts endurance performance and recovery.</p>`;
+}
+function bannerV(plan,cw){
+  const g=goal(),nx=plan[cw-1].sess.find(s=>!S.done[s.id]);
+  return `<div class='note' style='border-left-color:var(--acc);margin-top:0'><b style='font-size:1.5rem;font-stretch:75%'>${g.left>0?g.left+' days left':'You’re in perfect shape'}</b>${g.left>0?' to perfect shape':''}${g.loss>0?' · lose '+lb(g.loss)+' to reach '+lb(g.tg):''}<br><span class='mute'>${nx?'Next up: '+nx.day+' · '+nx.title+', '+nx.m+' min (~'+kcalOf(nx)+' kcal)':'All of this week’s sessions are done. Nice work.'}</span></div>`;
+}
+let openEx=null,T=null,iv=null;
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+function tStart(label,target,id,kind){if(iv)clearInterval(iv);T={label,secs:0,run:true,target,id,kind};iv=setInterval(()=>{if(T&&T.run){T.secs++;tDraw()}},1000);tDraw()}
+function tDraw(){const b=$('#tb');if(!T){b.hidden=true;b.innerHTML='';return}b.hidden=false;
+  b.innerHTML=`<div style='flex:1;min-width:0'><div style='font-size:.8rem;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>${esc(T.label)}${T.target?' · target '+fmt(T.target):''}</div><b style='font-size:1.6rem;font-stretch:75%'>${fmt(T.secs)}</b>${T.target&&T.secs>=T.target?' <span style=\'font-size:.85rem\'>Target reached</span>':''}</div><button id='tp'>${T.run?'Pause':'Resume'}</button><button id='ts' class='pri'>${T.kind=='ex'?'Stop':'Stop and log'}</button>`;
+  $('#tp').onclick=()=>{T.run=!T.run;tDraw()};$('#ts').onclick=tStop}
+function tStop(){if(T&&T.kind=='run'&&T.secs>=30){S.done[T.id]={min:Math.max(1,Math.round(T.secs/60)),rpe:5};save()}
+  if(T&&T.kind=='str'){S.sd=S.sd||{};S.sd[T.id]=1;save()}
+  T=null;clearInterval(iv);iv=null;tDraw();render()}
+const IC={
+push:[20,32,'M26 38L96 62M30 40L34 66M96 62L100 68',44,45],
+press:[60,16,'M60 22V50M60 50L52 70M60 50L68 70M60 28L44 22V8M60 28L76 22V8M38 8H82',60,30],
+row:[36,26,'M44 32L76 42M76 42L72 70M76 42L84 70M52 35L64 46L54 54',60,38],
+pull:[60,22,'M30 8H90M48 8L52 24M72 8L68 24M60 28V52M60 52L56 68M60 52L64 68',60,36],
+squat:[56,16,'M58 24L50 50L78 52L74 70M58 30L82 30',64,50],
+hinge:[30,28,'M40 32L70 38L72 56L70 70M46 33V56',71,48],
+lunge:[60,14,'M60 20V44L84 48V70M60 44L36 62L26 70',72,47],
+bridge:[12,62,'M20 66L62 44L84 52L90 68',62,48],
+calf:[60,12,'M60 18V46L54 66M60 46L66 66M50 72H72',58,58],
+plank:[18,44,'M26 50L96 56M26 52V66H40',60,53],
+dead:[14,62,'M22 66H70M32 66V42M70 66L74 46H94',48,64]};
+const ic=k=>{const[a,b,d,x,y]=IC[k];return `<svg viewBox='0 0 120 80' width='120' height='80' role='img' aria-label='${k} movement diagram'><path d='M6 72H114' stroke='var(--line)' stroke-width='2'/><path d='${d}' fill='none' stroke='var(--ink)' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/><circle cx='${a}' cy='${b}' r='6' fill='none' stroke='var(--ink)' stroke-width='3'/><circle cx='${x}' cy='${y}' r='8' fill='var(--hard)' opacity='.8'/></svg>`};
+const LIB={
+incpu:['Incline push-ups (hands on a table)','push','Chest, shoulders, triceps','Builds upper-body endurance so your posture holds when you tire late in a long effort.'],
+pu:['Push-ups','push','Chest, shoulders, triceps, core','Strong pushing muscles keep your arm swing efficient and your chest open for easier breathing.'],
+dip:['Bench dips','push','Triceps, shoulders','Strengthens the back of the arms that drive your swing.'],
+bp:['Barbell bench press','push','Chest, shoulders, triceps','Builds upper-body strength so your arms never fatigue before your legs.'],
+cpm:['Chest press machine','push','Chest, shoulders, triceps','A guided way to build pushing strength safely while you learn the pattern.'],
+dbp:['Dumbbell shoulder press','press','Shoulders, triceps, upper back','Keeps your shoulders from sagging and tightening in long runs or rides.'],
+ohp:['Standing overhead press','press','Shoulders, triceps, core','Trains full-body stability, which helps you hold good form when tired.'],
+bpr:['Backpack bent-over rows','row','Upper back, biceps','Counters the hunch that creeps in over long efforts and opens the chest.'],
+sup:['Superman holds','plank','Lower back, glutes','Strengthens the muscles that keep your spine upright mile after mile.'],
+owrow:['One-arm dumbbell row','row','Lats, upper back, biceps','Builds a strong back and corrects left-right imbalances.'],
+srow:['Seated cable row','row','Upper back, lats, biceps','Supports upright posture and a powerful arm drive.'],
+brow:['Barbell row','row','Lats, upper back, hamstrings','Heavy pulling strength protects your back and posture under fatigue.'],
+lpd:['Lat pulldown','pull','Lats, biceps, upper back','A stepping stone to pull-ups that builds the back muscles behind your arm drive.'],
+pull:['Pull-ups','pull','Lats, biceps, core','Top-tier pulling strength that improves posture and upper-body endurance.'],
+sq:['Bodyweight squats','squat','Quads, glutes, calves','Builds the leg strength that carries every stride and eases knee strain.'],
+gob:['Goblet squat','squat','Quads, glutes, core','Loaded squats make each step more powerful and your legs more fatigue-resistant.'],
+lpr:['Leg press','squat','Quads, glutes, hamstrings','Builds leg strength with back support, which suits beginners.'],
+bsq:['Back squat','squat','Quads, glutes, core','Improves running economy by making each stride cost less effort.'],
+bss:['Bulgarian split squat','lunge','Quads, glutes, balance','Single-leg strength matches how you actually run and fixes side-to-side weakness.'],
+rdl:['Romanian deadlift','hinge','Hamstrings, glutes, lower back','Strong hamstrings and glutes power your push-off and protect against strains.'],
+lung:['Walking lunges','lunge','Quads, glutes, hips','Builds single-leg control and hip stability, which keeps your stride steady.'],
+brg:['Glute bridges','bridge','Glutes, hamstrings','Wakes up the glutes that sitting switches off, protecting knees and lower back.'],
+cr:['Calf raises','calf','Calves, Achilles','Strong calves and tendons absorb impact and lower the risk of shin and Achilles problems.'],
+plk:['Plank','plank','Abs, shoulders, glutes','A stable core stops energy leaking from your stride as you tire.'],
+spl:['Side plank','plank','Obliques, hips, glutes','Hip stability keeps your knees tracking straight on long runs.'],
+dead:['Dead bug','dead','Deep abs, hip flexors','Teaches your core to stay steady while your limbs move, like running.'],
+pall:['Pallof press (band)','press','Core, obliques','Resists rotation so your torso stays quiet over long distances.']};
+const LS={
+h:{b:{push:['incpu','dip'],pull:['bpr','sup'],legs:['sq','brg','cr','lung'],core:['dead','plk','spl']},
+ i:{push:['pu','dbp','dip'],pull:['owrow','bpr','sup'],legs:['gob','rdl','lung','cr'],core:['plk','spl','pall']},
+ a:{push:['pu','dbp','dip'],pull:['owrow','bpr'],legs:['bss','rdl','gob','cr'],core:['plk','spl','pall']}},
+g:{b:{push:['cpm','dbp'],pull:['lpd','srow'],legs:['lpr','brg','cr'],core:['dead','plk','spl']},
+ i:{push:['bp','dbp'],pull:['lpd','srow','owrow'],legs:['gob','rdl','lung','cr'],core:['plk','spl','pall']},
+ a:{push:['bp','ohp','dip'],pull:['pull','brow','owrow'],legs:['bsq','rdl','bss','cr'],core:['plk','spl','pall']}}};
+function strV2(){
+  const p=S.p,w=viewW,loc=S.loc||p.loc||'h',f=S.sf||'all',three=p.lvl=='a'&&p.days>=5,sd=S.sd||{};
+  const SS=three?[['Push',['push']],['Pull',['pull']],['Legs and core',['legs','core']]]:[['Strength A · push and legs',['push','legs']],['Strength B · pull and core',['pull','core']]];
+  const G={push:'Push',pull:'Pull',legs:'Legs',core:'Core'},L=LS[loc][p.lvl];
+  let h=`<div class='seg'>${[['h','Home'],['g','Gym']].map(o=>`<button data-loc='${o[0]}' aria-pressed='${loc==o[0]}'>${o[1]}</button>`).join('')}</div>
+  <div class='seg' style='overflow-x:auto'>${['all','push','pull','legs','core'].map(k=>`<button data-sf='${k}' aria-pressed='${f==k}'>${k=='all'?'All':G[k]}</button>`).join('')}</div>
+  <div class='wk'><button id='pv' ${w<2?'disabled':''} aria-label='Previous week'>‹</button><h2 style='margin:0'>Week ${w} of 12</h2><button id='nx' ${w>11?'disabled':''} aria-label='Next week'>›</button></div>
+  <p class='mute'>${loc=='h'?'Home sessions need little or no equipment: a backpack, a chair and a pair of dumbbells or a band are enough.':'Gym sessions use machines, dumbbells and barbells. Start light and ask a coach to check your form.'} Do strength after an easy session, never before a quality or long one. Tap any exercise to see the movement and how it helps your endurance. The drawings are simple diagrams, with the highlighted dot marking the main muscle area.</p>`;
+  SS.forEach((s,i)=>{const gs=s[1].filter(g=>f=='all'||g==f);if(!gs.length)return;
+    const id=w+'-'+i,d=sd[id],mins=w%4==0?25:35,nE=s[1].reduce((a,g)=>a+L[g].length,0),per=Math.round(5*curKg()*mins/60/nE);
+    h+=`<div class='s str${d?' done':''}'><div class='top'><h3>${s[0]}</h3><span class='mute'>${mins} min · ~${Math.round(5*curKg()*mins/60)} kcal</span></div><ul class='ex'>`;
+    gs.forEach(g=>L[g].forEach(x=>{const k=id+x,o=openEx==k,E=LIB[x];
+      h+=`<li class='k'><button class='er' data-ex='${k}'><span><span class='mute'>${G[g]} · </span>${E[0]} ${o?'▴':'▾'}</span><b>${g=='core'?'3 × 30–45 s':rep(w,p.lvl)}<small class='mute' style='display:block;font-weight:400;text-align:right'>~${per} kcal</small></b></button>`;
+      if(o)h+=`<div class='det'>${ic(E[1])}<div><p class='m'><b>Works:</b> ${E[2]}</p><p class='m'><b>Why it helps:</b> ${E[3]}</p><button data-tk='ex' data-ti='${k}' data-tl='${esc(E[0])}' data-tt='${g=='core'?40:0}'>⏱ Time this exercise</button></div></div>`;
+      h+='</li>'}));
+    h+=`</ul><button class='${d?'':'pri'}' data-sd='${id}'>${d?'✓ Done, tap to undo':'Mark done'}</button> ${d?'':`<button data-tk='str' data-ti='${id}' data-tl='${esc(s[0])}' data-tt='${mins*60}'>⏱ Start timer</button>`}</div>`;});
+  return h;
+}
+function bind(plan){
+  const q=(s,f)=>document.querySelectorAll(s).forEach(f);
+  if($('#pv')){$('#pv').onclick=()=>{viewW--;openId=null;render()};$('#nx').onclick=()=>{viewW++;openId=null;render()}}
+  q('[data-open]',b=>b.onclick=()=>{openId=b.dataset.open||null;render()});
+  q('[data-save]',b=>b.onclick=()=>{const m=+$('#lm').value,r=+$('#lr').value;if(!(m>0))return;S.done[b.dataset.save]={min:Math.round(m),rpe:Math.min(10,Math.max(1,Math.round(r)||5))};openId=null;save();render()});
+  q('[data-undo]',b=>b.onclick=()=>{delete S.done[b.dataset.undo];save();render()});
+  q('[data-sd]',b=>b.onclick=()=>{S.sd=S.sd||{};const k=b.dataset.sd;if(S.sd[k])delete S.sd[k];else S.sd[k]=1;save();render()});
+  q('[data-dt]',b=>b.onclick=()=>{S.diet=b.dataset.dt;save();render()});
+  q('[data-loc]',b=>b.onclick=()=>{S.loc=b.dataset.loc;openEx=null;save();render()});
+  q('[data-sf]',b=>b.onclick=()=>{S.sf=b.dataset.sf;render()});
+  q('[data-ex]',b=>b.onclick=()=>{openEx=openEx==b.dataset.ex?null:b.dataset.ex;render()});
+  q('[data-tk]',b=>b.onclick=()=>tStart(b.dataset.tl,+b.dataset.tt,b.dataset.ti,b.dataset.tk));
+  if($('#sg'))$('#sg').onclick=()=>{const g=goal(),i=S.p.u=='i';let v=+$('#tg').value;if(!(v>0))return;if(i)v/=2.2046;if(v<g.lo-.05){$('#gerr').textContent='Too low for a healthy BMI. Pick at least '+(i?Math.round(g.lo*2.2046*10)/10+' lb':g.lo+' kg')+'.';return}S.tg=v;S.pace=+$('#pc').value;save();render()};
+  if($('#aw'))$('#aw').onclick=()=>{let v=+$('#nw').value;if(!(v>0))return;if(S.p.u=='i')v/=2.2046;if(v<30||v>250)return;S.weights.push({d:new Date().toISOString().slice(0,10),kg:v});save();render()};
+  if($('#rs'))$('#rs').onclick=()=>{if(confirm('This clears your plan and logs. Continue?')){S={};save();viewW=null;render()}};
+}
+render();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => {
+      console.warn('Stride offline support could not be enabled:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
